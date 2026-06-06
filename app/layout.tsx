@@ -39,8 +39,8 @@ export const metadata: Metadata = {
     images: [
       {
         url: "/og-image.png",
-        width: 1200,
-        height: 630,
+        width: 801,
+        height: 600,
         alt: "Mahinth Joe Christensen",
       },
     ],
@@ -51,6 +51,11 @@ export const metadata: Metadata = {
     description:
       "Personal website of Mahinth Joe Christensen — developer, builder, and creator.",
     images: ["/og-image.png"],
+    creator: "@mahinthjoe",
+  },
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/apple-touch-icon.png",
   },
   robots: {
     index: true,
@@ -65,6 +70,26 @@ export const metadata: Metadata = {
   },
 };
 
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Person",
+      "@id": `${BASE_URL}/#person`,
+      name: "Mahinth Joe Christensen",
+      url: BASE_URL,
+      sameAs: ["https://x.com/mahinthjoe"],
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${BASE_URL}/#website`,
+      url: BASE_URL,
+      name: "Mahinth Joe Christensen",
+      publisher: { "@id": `${BASE_URL}/#person` },
+    },
+  ],
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -75,6 +100,12 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      </head>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );

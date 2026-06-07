@@ -1,0 +1,54 @@
+# Cloudflare Tunnel configuration
+# ---------------------------------
+# Cloudflare Tunnel (formerly Argo Tunnel) creates an outbound-only connection
+# from your machine to Cloudflare's edge. This means:
+#
+#   - No ports opened on your router or firewall
+#   - No public IP needed
+#   - Traffic goes: internet → Cloudflare → encrypted tunnel → localhost:8000
+#
+# This is "Zero Trust" because nothing on the public internet can reach your
+# machine directly — all traffic must flow through Cloudflare, where you
+# can enforce access policies (who can call the API, from which IPs, etc.)
+#
+# ── ONE-TIME SETUP (do this before running cloudflared) ──────────────────────
+#
+# 1. Install cloudflared:
+#    Windows: winget install Cloudflare.cloudflared
+#    Ubuntu:  sudo apt install cloudflared  (after adding Cloudflare repo)
+#
+# 2. Log in to Cloudflare:
+#    cloudflared tunnel login
+#    (opens a browser window — select your mahinthjoe.com zone)
+#
+# 3. Create the tunnel:
+#    cloudflared tunnel create mahinthjoe-backend
+#    (outputs a UUID — copy it into tunnel: below)
+#
+# 4. Create a DNS CNAME in Cloudflare dashboard:
+#    Name: api        Value: <YOUR_TUNNEL_UUID>.cfargotunnel.com
+#    Or run: cloudflared tunnel route dns mahinthjoe-backend api.mahinthjoe.com
+#
+# 5. Run the tunnel:
+#    cloudflared tunnel --config .cloudflared/config.yml run
+#
+# ── CLOUDFLARE ACCESS (optional but recommended) ─────────────────────────────
+# In the Cloudflare Zero Trust dashboard (one.dash.cloudflare.com):
+# Access → Applications → Add Application → Self-hosted
+# URL: api.mahinthjoe.com
+# Policy: Allow if email = mahinthjoe@gmail.com
+# This means anyone hitting api.mahinthjoe.com must authenticate first.
+
+tunnel: YOUR_TUNNEL_UUID_HERE
+credentials-file: /Users/mahin/.cloudflared/YOUR_TUNNEL_UUID_HERE.json
+
+ingress:
+  # Route all traffic for api.mahinthjoe.com to the local FastAPI server.
+  # If Docker Compose is running, the backend is at localhost:8000.
+  # If running outside Docker, uvicorn listens on the same port.
+  - hostname: api.mahinthjoe.com
+    service: http://localhost:8000
+
+  # Cloudflare requires a catch-all rule at the end.
+  # Any hostname not matched above returns a 404.
+  - service: http_status:404

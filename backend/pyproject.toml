@@ -1,0 +1,83 @@
+# pyproject.toml — the modern Python project manifest
+# -----------------------------------------------------
+# This file replaces the old requirements.txt pattern.
+# It defines the project metadata AND its dependencies in one place.
+# uv reads this file to know what to install.
+#
+# Think of it as package.json for Python.
+
+[project]
+name = "mahinthjoe-backend"
+version = "0.1.0"
+description = "Personal productivity backend — FastAPI + MongoDB + Claude agents"
+requires-python = ">=3.12"
+
+dependencies = [
+    # ── Web framework ──────────────────────────────────────────────────────
+    # FastAPI: the web framework. Async-first, auto-generates /docs (Swagger UI).
+    "fastapi>=0.115",
+    # uvicorn: the ASGI server that actually runs FastAPI (like Node for Express).
+    # [standard] adds extras: websockets, http-tools, watchfiles (for --reload).
+    "uvicorn[standard]>=0.34",
+
+    # ── Database ───────────────────────────────────────────────────────────
+    # motor: async MongoDB driver. The sync version is pymongo; motor wraps it
+    # for use with Python's async/await pattern that FastAPI uses.
+    "motor>=3.7",
+    # beanie: ODM (Object Document Mapper) built on top of motor.
+    # Lets you define MongoDB documents as Python classes (like Mongoose for JS).
+    "beanie>=1.29",
+
+    # ── Validation ────────────────────────────────────────────────────────
+    # pydantic v2: data validation library. FastAPI uses it for request/response
+    # models. Define a class, FastAPI validates incoming JSON against it automatically.
+    "pydantic>=2.10",
+    # pydantic-settings: loads .env files into Pydantic models for type-safe config.
+    "pydantic-settings>=2.7",
+
+    # ── AI / Claude ───────────────────────────────────────────────────────
+    # The official Anthropic Python SDK — used for all Claude API calls.
+    "anthropic>=0.49",
+
+    # ── RAG pipeline ──────────────────────────────────────────────────────
+    # LangChain core + MongoDB Atlas integration for vector search.
+    "langchain>=0.3",
+    "langchain-mongodb>=0.4",
+    # langchain-anthropic: LangChain's Claude integration (embeddings + LLM).
+    "langchain-anthropic>=0.3",
+
+    # ── MCP server ────────────────────────────────────────────────────────
+    # FastMCP: the simplest way to build an MCP server in Python.
+    # Lets Claude Desktop call your backend functions as tools.
+    "fastmcp>=2.3",
+
+    # ── Content ingestion ─────────────────────────────────────────────────
+    # httpx: async HTTP client (like fetch for Python). Used to pull RSS feeds,
+    # newsletter HTML, and podcast transcripts from external URLs.
+    "httpx>=0.28",
+    # beautifulsoup4: HTML parser. Strips HTML tags from newsletters so we
+    # get clean text before feeding it to the RAG pipeline.
+    "beautifulsoup4>=4.13",
+    # feedparser: parses RSS/Atom podcast feeds.
+    "feedparser>=6.0",
+    # APScheduler: runs background jobs on a schedule inside FastAPI.
+    # Used to poll podcast RSS feeds daily without a separate cron daemon.
+    "apscheduler>=3.11",
+
+    # ── Async utilities ────────────────────────────────────────────────────
+    # python-dotenv: loads .env files at startup (dev convenience).
+    "python-dotenv>=1.1",
+]
+
+# Dev dependencies: only installed in development, not in production.
+# The [dev] extra is what `uv pip install -e ".[dev]"` pulls in (see Dockerfile).
+[project.optional-dependencies]
+dev = [
+    # pytest: Python's standard test runner (equivalent to Vitest on the JS side).
+    "pytest>=8.3",
+    # pytest-asyncio: lets pytest run async test functions (needed for FastAPI tests).
+    "pytest-asyncio>=0.25",
+    # httpx: used in tests to make HTTP calls to FastAPI without starting a real server.
+    # (already in main deps but listed here for clarity)
+    "httpx>=0.28",
+]

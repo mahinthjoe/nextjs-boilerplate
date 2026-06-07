@@ -39,3 +39,19 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Python
+backend/.env
+backend/__pycache__/
+backend/**/__pycache__/
+backend/*.pyc
+backend/.pytest_cache/
+backend/.ruff_cache/
+
+# Cloudflare tunnel credentials (contain secrets — never commit)
+.cloudflared/*.json
+
+# Dev logs
+dev-out.log
+dev-err.log
+site-preview.png

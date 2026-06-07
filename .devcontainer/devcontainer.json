@@ -1,0 +1,64 @@
+{
+  // VS Code Dev Containers configuration
+  // --------------------------------------
+  // When you open this repo in VS Code and click "Reopen in Container",
+  // VS Code builds the backend Docker image and drops your editor session
+  // INSIDE the container. Your terminal, Python interpreter, linter, and
+  // debugger all run inside Fedora — identical to production.
+  //
+  // Why use a devcontainer?
+  // - "Works on my machine" disappears. Everyone shares the exact same OS.
+  // - No polluting your host machine with Python versions and packages.
+  // - One Fedora container covers both Windows and Ubuntu hosts.
+  //
+  // Prerequisites: Docker Desktop (Windows) or Docker Engine (Ubuntu)
+  //               + VS Code extension "Dev Containers" (ms-vscode-remote.remote-containers)
+
+  "name": "Mahinth Joe — Python Backend (Fedora)",
+
+  // Point at the same Dockerfile the production container uses.
+  // The devcontainer and the prod container are built from the same image —
+  // no "but it works in my devcontainer" surprises.
+  "build": {
+    "context": "..",
+    "dockerfile": "../backend/Dockerfile"
+  },
+
+  // Mount the backend source into /app (same as docker-compose.yml).
+  "workspaceFolder": "/app",
+  "workspaceMount": "source=${localWorkspaceFolder}/backend,target=/app,type=bind",
+
+  // VS Code extensions to install automatically inside the container.
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",           // Python language support
+        "ms-python.vscode-pylance",   // Fast type checking and IntelliSense
+        "ms-python.black-formatter",  // Auto-format Python on save
+        "ms-python.isort",            // Auto-sort imports on save
+        "charliermarsh.ruff",         // Fast Python linter (catches bugs)
+        "mtxr.sqltools",              // Useful for future SQL if needed
+        "mongodb.mongodb-vscode"      // MongoDB Atlas UI inside VS Code
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/usr/bin/python3.12",
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "ms-python.black-formatter",
+        "[python]": {
+          "editor.defaultFormatter": "ms-python.black-formatter"
+        }
+      }
+    }
+  },
+
+  // Run after the container starts: install dependencies with uv.
+  // This runs once when VS Code first opens the devcontainer.
+  "postCreateCommand": "uv pip install --system -e '.[dev]'",
+
+  // Forward port 8000 from inside the container to your host.
+  // Same effect as docker-compose ports — lets you visit localhost:8000.
+  "forwardPorts": [8000],
+
+  // Load the same env file the Compose setup uses.
+  "runArgs": ["--env-file", "${localWorkspaceFolder}/backend/.env"]
+}

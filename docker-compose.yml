@@ -1,0 +1,71 @@
+# docker-compose.yml
+# -------------------
+# Docker Compose lets you define and run multi-container applications.
+# One command — `docker compose up` — starts everything.
+#
+# This file works identically on:
+#   Windows  → Docker Desktop (must be running)
+#   Ubuntu   → Docker Engine (sudo systemctl start docker)
+#
+# No Windows-specific paths or commands are used.
+# All volume mounts use relative paths (./backend) which Docker
+# resolves correctly on both operating systems.
+
+services:
+  # ── FastAPI backend ────────────────────────────────────────────────────────
+  backend:
+    # Build the image from backend/Dockerfile.
+    # Docker looks for a file named "Dockerfile" in the specified context path.
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+
+    # Map host port 8000 → container port 8000.
+    # After `docker compose up`, visit http://localhost:8000/docs
+    # to see the auto-generated Swagger UI.
+    ports:
+      - "8000:8000"
+
+    # Mount your local backend/ folder into the container at /app.
+    # This is the key to hot-reload: when you edit a .py file on your host,
+    # the change is immediately visible inside the container — uvicorn sees it
+    # and restarts automatically (because we pass --reload below).
+    # Without this mount, you'd have to rebuild the Docker image after every change.
+    volumes:
+      - ./backend:/app
+
+    # Override the Dockerfile CMD for development.
+    # --reload  → restart server when any .py file changes (hot-reload)
+    # --host 0.0.0.0 → listen on all interfaces, not just 127.0.0.1
+    #                  (required so requests from your host machine reach the container)
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
+
+    # Load environment variables from backend/.env
+    # Each line in .env becomes an env var inside the container.
+    # This is how MONGODB_URL, ANTHROPIC_API_KEY, etc. reach the app.
+    env_file:
+      - ./backend/.env
+
+    # Restart automatically if the container crashes.
+    # "unless-stopped" means: restart on crash, but not if you manually `docker compose stop`.
+    restart: unless-stopped
+
+    # Health check: Docker pings / every 30s.
+    # If it fails 3 times in a row, Docker marks the container as "unhealthy".
+    # This is how Cloudflare Tunnel (and orchestrators like Kubernetes) know
+    # whether the service is actually ready to accept traffic.
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+# ── Networks ───────────────────────────────────────────────────────────────────
+# Docker creates an isolated virtual network for this project.
+# Containers in this network can reach each other by service name.
+# When we add a Celery worker or Redis in later phases, they'll join this network
+# and talk to the backend container via http://backend:8000.
+networks:
+  default:
+    name: mahinthjoe-network

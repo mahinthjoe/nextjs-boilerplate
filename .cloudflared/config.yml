@@ -39,8 +39,8 @@
 # Policy: Allow if email = mahinthjoe@gmail.com
 # This means anyone hitting api.mahinthjoe.com must authenticate first.
 
-tunnel: YOUR_TUNNEL_UUID_HERE
-credentials-file: /Users/mahin/.cloudflared/YOUR_TUNNEL_UUID_HERE.json
+tunnel: 8b136081-e053-4ad2-b760-1b6e23f2587e
+credentials-file: /Users/mahin/.cloudflared/8b136081-e053-4ad2-b760-1b6e23f2587e.json
 
 ingress:
   # Route all traffic for api.mahinthjoe.com to the local FastAPI server.

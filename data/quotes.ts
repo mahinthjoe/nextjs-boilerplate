@@ -11,6 +11,11 @@ export const quotes: Quote[] = [
     author: "Ann Chang-ho",
     source: "Address to Korean emigrants",
   },
+  {
+    text:"To write is to forget. Literature is the most agreeable way of ignoring life.",
+    author: "Fernando Pessoa",
+    source: "Portugese poet:Quote of the Day: 13 June",
+  }
 ];
 
 export function getDailyQuote(): Quote {

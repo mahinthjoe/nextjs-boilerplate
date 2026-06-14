@@ -1,0 +1,5 @@
+{
+  "enabledPlugins": {
+    "agt-governance@agent-governance-toolkit": true
+  }
+}

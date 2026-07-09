@@ -1,6 +1,10 @@
 import type { Metadata } from "next";
 import ChatRoom from "@/components/ChatRoom";
 
+// Force dynamic rendering so a missing Supabase config fails a request
+// instead of failing the entire site's build at prerender time.
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Chat",
   description: "A realtime chat room powered by Supabase Realtime channels.",
